@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Bingo 90</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body { font-family: sans-serif; text-align: center; background: #e0f7fa; padding: 10px; }
+        h2 { color: #006064; }
+        
+        #bingo-card { 
+            display: grid; 
+            grid-template-columns: repeat(9, 1fr); /* 9 Columnas */
+            gap: 2px; 
+            margin: 20px 0; 
+            background: #006064; /* Bordes del cartón */
+            padding: 5px;
+            border-radius: 5px;
+        }
+        
+        .cell {
+            background: #fff; 
+            aspect-ratio: 1/1.2; /* Un poco más verticales */
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; font-weight: bold; 
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .cell.empty {
+            background: #00838f; /* Color de fondo del hueco */
+            cursor: default;
+        }
+
+        .cell.marked { background: #ffeb3b; color: #d50000; border: 2px solid #d50000; }
+        
+        .bingo-btn {
+            background: #d50000; color: white; border: none; padding: 15px;
+            font-size: 1.5em; border-radius: 50px; width: 80%; cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        #last-number { font-size: 2em; margin: 10px; color: #d50000; font-weight: bold;}
+    </style>
+</head>
+<body>
+    <h2>Tu Cartón</h2>
+    <div id="status">Esperando...</div>
+    <div id="last-number">--</div>
+    
+    <div id="bingo-card"></div>
+    
+    <button class="bingo-btn" onclick="claimBingo()">¡BINGO!</button>
+
+    <script>
+        const socket = io();
+        let myCard = [];
+
+        socket.on('connect', () => { socket.emit('request-card'); });
+
+        socket.on('card-assigned', (card) => {
+            myCard = card;
+            console.log(myCard)
+            renderCard();
+            document.getElementById('status').innerText = "Partida en curso";
+        });
+
+        socket.on('new-number', (num) => {
+            document.getElementById('last-number').innerText = num;
+            if (navigator.vibrate) navigator.vibrate(100);
+        });
+
+        function renderCard() {
+            const container = document.getElementById('bingo-card');
+            container.innerHTML = '';
+            
+            // Recorremos las 3 filas
+            for(let r=0; r<3; r++) {
+                for(let c=0; c<9; c++) {
+                    let num = myCard[r][c];
+                    let div = document.createElement('div');
+                    
+                    if (num === -1) {
+                        div.className = 'cell empty'; // Hueco vacío
+                    } else {
+                        div.className = 'cell';
+                        div.innerText = num;
+                        div.onclick = () => toggleMark(div);
+                    }
+                    container.appendChild(div);
+                }
+            }
+        }
+
+        function toggleMark(el) {
+            if(el.classList.contains('empty')) return;
+            el.classList.toggle('marked');
+        }
+
+        function claimBingo() { socket.emit('check-bingo'); }
+        
+        socket.on('game-over', (d) => alert(d.winner === socket.id ? "¡GANASTE!" : "Ganó otro jugador"));
+        socket.on('false-bingo', () => alert("¡Falso! Revisa tu cartón"));
+    </script>
+</body>
+</html>

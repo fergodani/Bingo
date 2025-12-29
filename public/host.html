@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Bingo Host</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+    <link rel="stylesheet" href="host.css">
+    <style>
+
+    </style>
+</head>
+
+<body>
+    <h1>BINGO</h1>
+
+    <div id="setup">
+        <button onclick="startGame()">Iniciar Nueva Partida</button>
+        <canvas id="qr-canvas"></canvas>
+    </div>
+
+    <div id="game-ui" style="display:none;">
+        <div id="current-number">--</div>
+        <button onclick="drawBall()" style="font-size: 2em; padding: 20px;">SACAR BOLA</button>
+
+        <div style="margin: 20px;">
+            <label style="font-size: 1.2em;">
+                <input type="checkbox" id="voice-toggle" checked style="margin-right: 10px; transform: scale(1.5);">
+                Anunciar números por voz
+            </label>
+        </div>
+
+
+    </div>
+    <div id="last-numbers"></div>
+    <script>
+        const socket = io();
+
+        // Generar QR apuntando a la IP local (Cambia TU-IP-LOCAL por tu IP real, ej: 192.168.1.35)
+        const joinUrl = 'http://' + window.location.hostname + ':3000';
+        QRCode.toCanvas(document.getElementById('qr-canvas'), joinUrl, { width: 300 });
+
+        function startGame() {
+            socket.emit('start-game');
+            document.getElementById('setup').style.display = 'none';
+            document.getElementById('game-ui').style.display = 'flex';
+        }
+
+        function drawBall() {
+            socket.emit('draw-ball');
+        }
+
+        socket.on('new-number', (num) => {
+            document.getElementById('current-number').innerText = num;
+            const lastNumbers = document.getElementById('last-numbers');
+            const ballSpan = document.createElement('span');
+            ballSpan.className = 'ball';
+            ballSpan.textContent = num;
+            lastNumbers.insertBefore(ballSpan, lastNumbers.firstChild);
+
+            // Anunciar número por voz solo si está activado
+            const voiceEnabled = document.getElementById('voice-toggle').checked;
+            if (voiceEnabled) {
+                let msg = new SpeechSynthesisUtterance(num.toString());
+                window.speechSynthesis.speak(msg);
+            }
+        });
+
+        socket.on('game-over', (data) => {
+            alert("¡TENEMOS GANADOR! " + data.winner);
+            // Aquí podrías lanzar confetti digital
+        });
+    </script>
+</body>
+
+</html>

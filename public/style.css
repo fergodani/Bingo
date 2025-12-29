@@ -1,0 +1,22 @@
+body {
+    font-family: sans-serif;
+    text-align: center;
+    background: #222;
+    color: #fff;
+}
+
+#current-number {
+    font-size: 10em;
+    font-weight: bold;
+    color: #ffeb3b;
+    margin: 20px;
+}
+
+#last-numbers {
+    font-size: 1.5em;
+    color: #aaa;
+}
+
+#qr-canvas {
+    margin-top: 20px;
+}
