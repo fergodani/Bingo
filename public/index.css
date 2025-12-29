@@ -1,0 +1,134 @@
+body {
+    font-family: sans-serif;
+    text-align: center;
+    background: #e0f7fa;
+    padding: 10px;
+}
+
+h2 {
+    color: #006064;
+}
+
+/* Estilos para la pantalla de entrada de nombre */
+.name-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 80vh;
+}
+
+.name-form {
+    background: white;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 90%;
+}
+
+.name-form label {
+    display: block;
+    margin-bottom: 15px;
+    font-size: 1.2em;
+    color: #006064;
+    font-weight: bold;
+}
+
+.name-form input {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #006064;
+    border-radius: 10px;
+    font-size: 1.1em;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+}
+
+.name-form input:focus {
+    outline: none;
+    border-color: #00838f;
+    box-shadow: 0 0 8px rgba(0, 131, 143, 0.3);
+}
+
+.join-btn {
+    background: #006064;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.2em;
+    border-radius: 10px;
+    cursor: pointer;
+    width: 100%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s;
+}
+
+.join-btn:hover {
+    background: #00838f;
+}
+
+#player-info {
+    background: #fff;
+    color: #006064;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 8px;
+    border: 2px solid #006064;
+}
+
+#bingo-card {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    /* 9 Columnas */
+    gap: 2px;
+    margin: 20px 0;
+    background: #006064;
+    /* Bordes del cartón */
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.cell {
+    background: #fff;
+    aspect-ratio: 1/1.2;
+    /* Un poco más verticales */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+}
+
+.cell.empty {
+    background: #00838f;
+    /* Color de fondo del hueco */
+    cursor: default;
+}
+
+.cell.marked {
+    background: #ffeb3b;
+    color: #d50000;
+    border: 2px solid #d50000;
+}
+
+.bingo-btn {
+    background: #d50000;
+    color: white;
+    border: none;
+    padding: 15px;
+    font-size: 1.5em;
+    border-radius: 50px;
+    width: 80%;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+#last-number {
+    font-size: 2em;
+    margin: 10px;
+    color: #d50000;
+    font-weight: bold;
+}

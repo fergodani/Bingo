@@ -16,54 +16,10 @@ let gameState = {
 // --- GENERADOR DE CARTÓN DE 90 BOLAS ---
 // Codigo de https://discoduroderoer.es/crea-cartones-de-bingo-automaticamente-en-java/
 function generateCard90() {
-    // Estructura base: 3 filas, 9 columnas
     let card = new Array(3).fill().map(() => new Array(9).fill(0));
     rellenarNumeros(card);
     ordenarColumnas(card);
     marcarHuecos(card);
-    /*
-    
-    // Columnas: rangos de decenas. 
-    // Col 0: 1-9, Col 1: 10-19... Col 8: 80-90
-    let columns = [];
-    for (let i = 0; i < 9; i++) {
-        let min = (i === 0) ? 1 : i * 10; // La primera col empieza en 1, no 0
-        let max = (i === 8) ? 90 : (i * 10) + 9;
-        
-        // Generamos números candidatos para esta columna
-        let availableNums = [];
-        for (let n = min; n <= max; n++) availableNums.push(n);
-        
-        // Mezclamos
-        availableNums.sort(() => Math.random() - 0.5);
-        columns.push(availableNums);
-    }
-    
-    for (let r = 0; r < 3; r++) {
-        let positions = [0,1,2,3,4,5,6,7,8];
-        positions.sort(() => Math.random() - 0.5);
-        let rowIndices = positions.slice(0, 5); // Elegimos 5 columnas para esta fila
-        
-        rowIndices.forEach(colIndex => {
-            // Sacamos un número de la reserva de esa columna
-            let num = columns[colIndex].pop();
-            // Si por azar se acabaron los números de esa columna (raro), buscamos otro,
-            // pero con el pool de 1-90 es difícil que pase en 3 filas.
-            if(num) card[r][colIndex] = num;
-        });
-    }
-    
-    // Ordenar las columnas de arriba a abajo para que queden bonitas
-    for(let c=0; c<9; c++){
-        let numsInCol = [];
-        for(let r=0; r<3; r++) if(card[r][c] !== 0) numsInCol.push(card[r][c]);
-        numsInCol.sort((a,b)=>a-b);
-        // Recolocar ordenados (rellenando desde arriba o manteniendo huecos es complejo, 
-        // aquí simplemente los ponemos donde cayeron pero ordenados si hubiera coincidencia vertical)
-        // Para simplificar visualización: dejamos el 0 como hueco.
-    }
-
-    */
     return card;
 }
 
@@ -190,13 +146,14 @@ io.on('connection', (socket) => {
     });
 
     socket.on('draw-ball', () => {
-        if (!gameState.isGameActive) return;
+        if (!gameState.isGameActive || gameState.drawnNumbers.length >= 90) return;
         let num;
         do {
             num = Math.floor(Math.random() * 90) + 1; // 1 a 90
         } while (gameState.drawnNumbers.includes(num) && gameState.drawnNumbers.length < 90);
 
         gameState.drawnNumbers.push(num);
+        console.log(gameState.drawnNumbers.length)
         io.emit('new-number', num);
     });
 

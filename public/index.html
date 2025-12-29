@@ -5,58 +5,70 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Bingo 90</title>
     <script src="/socket.io/socket.io.js"></script>
-    <style>
-        body { font-family: sans-serif; text-align: center; background: #e0f7fa; padding: 10px; }
-        h2 { color: #006064; }
-        
-        #bingo-card { 
-            display: grid; 
-            grid-template-columns: repeat(9, 1fr); /* 9 Columnas */
-            gap: 2px; 
-            margin: 20px 0; 
-            background: #006064; /* Bordes del cartón */
-            padding: 5px;
-            border-radius: 5px;
-        }
-        
-        .cell {
-            background: #fff; 
-            aspect-ratio: 1/1.2; /* Un poco más verticales */
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1rem; font-weight: bold; 
-            cursor: pointer;
-            user-select: none;
-        }
-        
-        .cell.empty {
-            background: #00838f; /* Color de fondo del hueco */
-            cursor: default;
-        }
-
-        .cell.marked { background: #ffeb3b; color: #d50000; border: 2px solid #d50000; }
-        
-        .bingo-btn {
-            background: #d50000; color: white; border: none; padding: 15px;
-            font-size: 1.5em; border-radius: 50px; width: 80%; cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-        }
-        #last-number { font-size: 2em; margin: 10px; color: #d50000; font-weight: bold;}
-    </style>
+    <link rel="stylesheet" href="index.css">
 </head>
 <body>
-    <h2>Tu Cartón</h2>
-    <div id="status">Esperando...</div>
-    <div id="last-number">--</div>
-    
-    <div id="bingo-card"></div>
-    
-    <button class="bingo-btn" onclick="claimBingo()">¡BINGO!</button>
+    <!-- Pantalla de entrada de nombre -->
+    <div id="name-entry" class="name-screen">
+        <h2>¡Bienvenido al Bingo!</h2>
+        <div class="name-form">
+            <label for="player-name">Introduce tu nombre:</label>
+            <input type="text" id="player-name" placeholder="Tu nombre" maxlength="20">
+            <button onclick="joinGame()" class="join-btn">Entrar al Juego</button>
+        </div>
+    </div>
+
+    <!-- Pantalla del juego (inicialmente oculta) -->
+    <div id="game-screen" style="display: none;">
+        <h2>Tu Cartón</h2>
+        <div id="player-info"></div>
+        <div id="status">Esperando...</div>
+        <div id="last-number">--</div>
+        
+        <div id="bingo-card"></div>
+        
+        <button class="bingo-btn" onclick="claimBingo()">¡BINGO!</button>
+    </div>
 
     <script>
         const socket = io();
         let myCard = [];
+        let playerName = '';
 
-        socket.on('connect', () => { socket.emit('request-card'); });
+        socket.on('connect', () => { 
+            // No pedimos cartón automáticamente, esperamos a que el usuario entre su nombre
+        });
+
+        function joinGame() {
+            const nameInput = document.getElementById('player-name');
+            const name = nameInput.value.trim();
+            
+            if (name === '') {
+                alert('Por favor introduce tu nombre');
+                return;
+            }
+            
+            playerName = name;
+            
+            // Ocultar pantalla de nombre y mostrar juego
+            document.getElementById('name-entry').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'block';
+            
+            // Mostrar nombre del jugador
+            document.getElementById('player-info').innerHTML = `<strong>Jugador: ${playerName}</strong>`;
+            
+            // Ahora sí solicitar cartón
+            socket.emit('request-card', { playerName: playerName });
+        }
+
+        // Permitir enviar con Enter en el input
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('player-name').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    joinGame();
+                }
+            });
+        });
 
         socket.on('card-assigned', (card) => {
             myCard = card;

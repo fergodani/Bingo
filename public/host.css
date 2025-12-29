@@ -1,7 +1,7 @@
 body {
     font-family: sans-serif;
-    background: #222;
-    color: #fff;
+    background: #e0f7fa;
+    color: #222;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -20,8 +20,8 @@ button {
     cursor: pointer;
     border-radius: 10px;
     border: none;
-    background-color: #f3f3f3;
-    color: #222;
+    background-color: #006064;
+    color: #fff;
 }
 
 #last-numbers {
